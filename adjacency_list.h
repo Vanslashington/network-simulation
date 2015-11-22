@@ -24,8 +24,7 @@ class adjacency_list {
   // Assignment operator
   adjacency_list& operator=(adjacency_list other);
 
-  // Other methods
-  void reserve(int newCapacity);
+  // Insert edges and vertices
   void insertVertex(const dataType& newVertex);
   void insertEdge(const dataType& vertexA, const dataType& vertexB);
   void insertEdge(const dataType& vertexA, const dataType& vertexB,
@@ -34,11 +33,10 @@ class adjacency_list {
   void insertDirectedEdge(const dataType& vertexA, const dataType& vertexB,
                           const weightType& weight);
 
-  // Shortest path
-  weightType path(const dataType& vertexA, const dataType& vertexB);
-  weightType path(const dataType& vertexA, const dataType& vertexB,
-                  vector<dataType>& pathVector);
-
+  // SSSP
+  weightType dijkstra(const dataType& vertexA, const dataType& vertexB);
+  weightType dijkstra(const dataType& vertexA, const dataType& vertexB,
+                      vector<dataType>& pathVector);
  private:
   // Edge struct to store links and weights
   struct edge {
@@ -59,15 +57,6 @@ class adjacency_list {
   int size;
   bool weighted;
   bool negativeWeights;
-
-  // Helper functions
-  weightType bfs(const dataType& vertexA, const dataType& vertexB);
-  weightType bfs(const dataType& vertexA, const dataType& vertexB,
-                 vector<dataType>& pathVector);
-
-  weightType dijkstra(const dataType& vertexA, const dataType& vertexB);
-  weightType dijkstra(const dataType& vertexA, const dataType& vertexB,
-                      vector<dataType>& pathVector);
 };
 
 // Implementation file
