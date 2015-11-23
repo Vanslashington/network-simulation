@@ -26,12 +26,10 @@ class adjacency_list {
 
   // Insert edges and vertices
   void insertVertex(const dataType& newVertex);
-  void insertEdge(const dataType& vertexA, const dataType& vertexB);
   void insertEdge(const dataType& vertexA, const dataType& vertexB,
-                  const weightType& weight);
-  void insertDirectedEdge(const dataType& vertexA, const dataType& vertexB);
+                  const weightType& weight = 1);
   void insertDirectedEdge(const dataType& vertexA, const dataType& vertexB,
-                          const weightType& weight);
+                          const weightType& weight = 1);
 
   // SSSP
   void dijkstra(const dataType& source);

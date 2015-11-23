@@ -47,14 +47,6 @@ insertVertex(const dataType& newVertex) {
   edges[newVertex] = vector<edge>();
 }
 
-// Insert undirected, unweighted edge between to edges
-template <typename dataType, typename weightType>
-void adjacency_list<dataType, weightType>::
-insertEdge(const dataType& vertexA, const dataType& vertexB) {
-  // Call the weighted overload of insert edge with weight 1
-  insertEdge(vertexA, vertexB, 1);
-}
-
 // Insert undirected, weighted edge
 template <typename dataType, typename weightType>
 void adjacency_list<dataType, weightType>::
@@ -63,14 +55,6 @@ insertEdge(const dataType& vertexA, const dataType& vertexB,
   // Call the directed, weighted insert function from each vertex to the other
   insertDirectedEdge(vertexA, vertexB, weight);
   insertDirectedEdge(vertexB, vertexA, weight);
-}
-
-// Insert directed, unweighted edge
-template <typename dataType, typename weightType>
-void adjacency_list<dataType, weightType>::
-insertDirectedEdge(const dataType& vertexA, const dataType& vertexB) {
-  // Call the directed, weighted insert function, with weight 1
-  insertDirectedEdge(vertexA, vertexB, 1);
 }
 
 // Insert directed, weighted edge

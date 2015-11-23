@@ -5,11 +5,12 @@
 #include "adjacency_list.h"
 using namespace std;
 
-// Define type to represent routers
+// Types for routers and paths
 typedef string router;
 typedef vector<router> pathType;
 typedef pair<int, pathType> pathWithDistType;
 
+// OSPF path functions
 void updatePaths(adjacency_list<router>& ospfNetwork,
                  const set<router>& routers,
                  map<router, map<router, pathWithDistType> >& pathsTable);
@@ -18,6 +19,7 @@ void printPaths(const adjacency_list<router>& ospfNetwork,
                 const set<router>& routers,
                 map<router, map<router, pathWithDistType> >& pathsTable);
 
+// main
 int main() {
   adjacency_list<router> ospfNetwork;
   set<router> routers;
@@ -34,8 +36,8 @@ int main() {
 
   // Loop through k time intervals
   // For each interval
-  //  Send packet, or
-  //  Change network
+  //   Send packet, or
+  //   Change network
 
   updatePaths(ospfNetwork, routers, pathsTable);
   printPaths(ospfNetwork, routers, pathsTable);
@@ -62,11 +64,12 @@ void updatePaths(adjacency_list<router>& ospfNetwork,
 void printPaths(const adjacency_list<router>& ospfNetwork,
                 const set<router>& routers,
                 map<router, map<router, pathWithDistType> >& pathsTable) {
-  // Discover shortest path trees from every router
+  // From every source...
   for(auto source = routers.begin(); source != routers.end(); ++source) {
-    // Traverse the shortest paths to every destination
     cout << "============================" << endl;
     cout << "Source: " << *source << endl;
+
+    // ...to every destination
     for(auto destn = routers.begin(); destn != routers.end(); ++destn) {
       cout << "Destination: " << *destn << endl;
       pathWithDistType pathWithDist = pathsTable[*source][*destn];
