@@ -1,13 +1,18 @@
 #include <iostream>
 #include <set>
+#include <string>
 #include "adjacency_list.h"
 using namespace std;
 
-int main() {
-  adjacency_list<int> ospfNetwork;
-  set<int> routers;
+// Define type to represent routers
+typedef string router;
 
-  int f, t;
+int main() {
+  // Build graph and record routers
+  adjacency_list<router> ospfNetwork;
+  set<router> routers;
+
+  router f, t;
   while(cin >> f >> t) {
     ospfNetwork.insertEdge(f, t);
     routers.insert(f);
@@ -17,7 +22,7 @@ int main() {
   // Discover shortest path trees from every router
   for(auto source = routers.begin(); source != routers.end(); ++source) {
     ospfNetwork.dijkstra(*source);
-    vector<int> path;
+    vector<router> path;
 
     // Traverse the shortest paths to every destination
     cout << "============================" << endl;
