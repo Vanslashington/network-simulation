@@ -176,6 +176,9 @@ findPath(const dataType& dest, vector<dataType>* path) {
   // We assume a source has already been chosen and dijkstra has been run
   if(parent.empty()) return weightType(-1);
 
+  // Is there a path?
+  if(dist[dest] == INT_MAX) return weightType(-1);
+
   // Trace back the path
   if(path) {
     path->clear();
