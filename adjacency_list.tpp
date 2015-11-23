@@ -6,6 +6,7 @@
 #include <queue>
 #include <utility>
 #include <algorithm>
+#include <set>
 #include "adjacency_list.h"
 
 // Default constructor
@@ -13,16 +14,14 @@ template <typename dataType, typename weightType>
 adjacency_list<dataType, weightType>::
 adjacency_list()
   : size(0), weighted(false), negativeWeights(false) {
-  capacity = vertices.capacity();
 }
 
 // Copy constructor
 template <typename dataType, typename weightType>
 adjacency_list<dataType, weightType>::
 adjacency_list(const adjacency_list& other)
-  : vertices(other.vertices), indexMap(other.indexMap) {
-  size = vertices.size();
-  capacity = vertices.capacity();
+  : edges(other.edges) {
+  size = edges.size();
 }
 
 // Destructor
@@ -36,10 +35,8 @@ adjacency_list<dataType, weightType>::
 template <typename dataType, typename weightType>
 adjacency_list<dataType, weightType>& adjacency_list<dataType, weightType>::
 operator=(adjacency_list other) {
-  swap(vertices, other.vertices);
-  swap(indexMap, other.indexMap);
-  size = vertices.size();
-  capacity = vertices.capacity();
+  swap(edges, other.edges);
+  size = edges.size();
 }
 
 // Insert vertex
@@ -47,11 +44,10 @@ template <typename dataType, typename weightType>
 void adjacency_list<dataType, weightType>::
 insertVertex(const dataType& newVertex) {
   // Add a new vertex to the map and the vector
-  indexMap[newVertex] = size++;
-  vertices.push_back(vector<edge>());
+  edges[newVertex] = vector<edge>();
 }
 
-// Insert undirected, unweighted edge between to vertices
+// Insert undirected, unweighted edge between to edges
 template <typename dataType, typename weightType>
 void adjacency_list<dataType, weightType>::
 insertEdge(const dataType& vertexA, const dataType& vertexB) {
@@ -82,62 +78,69 @@ template <typename dataType, typename weightType>
 void adjacency_list<dataType, weightType>::
 insertDirectedEdge(const dataType& vertexA, const dataType& vertexB,
              const weightType& weight) {
-  // Insert the vertices if they don't yet exist
-  if(!indexMap.count(vertexA)) insertVertex(vertexA);
-  if(!indexMap.count(vertexB)) insertVertex(vertexB);
+  // Insert the edges if they don't yet exist
+  if(!edges.count(vertexA)) insertVertex(vertexA);
+  if(!edges.count(vertexB)) insertVertex(vertexB);
 
   // Update "weighted" and "negativeWeights" flags
   if(weight != 1) weighted = true;
   if(weight < 0) negativeWeights = true;
 
   // Push the edge into adjacency list vector
-  vertices[indexMap[vertexA]].push_back(edge(vertexB, weight));
+  edges[vertexA].push_back(edge(weight, vertexB));
 }
 
 // Dijkstra's SSSP algorithm
 template <typename dataType, typename weightType>
 weightType adjacency_list<dataType, weightType>::
-dijkstra(const dataType& vertexA, const dataType& vertexB) {
-  // Initialize priority queue
-  typedef pair<weightType, dataType> edge;
+dijkstra(const dataType& vertexA, const dataType& vertexB,
+         vector<dataType>* pathVector) {
+  // Initialize helper data structures
   priority_queue<edge, vector<edge>, greater<edge> > dijkstraQueue;
 
-  vector<bool> visited(size, false);
-  vector<weightType>dist(size, weightType(INT_MAX));
-  dist[indexMap[vertexA]] = 0;
+  map<dataType, weightType> dist;
+  for(auto i = edges.begin(); i != edges.end(); ++i)
+    dist[i->first] = INT_MAX;
+
+  set<dataType> visited;
+  map<dataType, dataType> parent;
 
   dijkstraQueue.push(edge(0, vertexA));
+  visited.insert(vertexA);
+  dist[vertexA] = 0;
 
-  // Greedily relax all the vertices in order of ascending distance
+  // Greedily relax all the edges in order of ascending distance
   while(!dijkstraQueue.empty()) {
     dataType vertex = dijkstraQueue.top().second;
     weightType distance = dijkstraQueue.top().first;
-
-    int index = indexMap[vertex];
     dijkstraQueue.pop();
 
-    // If already done, skip
-    if(visited[index] || dist[index] < distance)
-      continue;
-
-    visited[index] = true;
-
     // Check if it's the target
-    if(vertex == vertexB)
+    if(vertex == vertexB) {
+      // Trace back the path
+      if(pathVector) {
+        pathVector->clear();
+        dataType currentVertex = vertex;
+        while(currentVertex != vertexA) {
+          pathVector->push_back(currentVertex);
+          currentVertex = parent[currentVertex];
+        }
+        reverse(pathVector->begin(), pathVector->end());
+      }
+
       return distance;
+    }
 
     // Relax edges
-    for(auto i = vertices[index].begin(); i != vertices[index].end(); ++i)
-      if(distance + i->weight < dist[indexMap[i->vertex]]) {
-        dist[indexMap[i->vertex]] = distance + i->weight;
-        dijkstraQueue.push(edge(distance + i->weight, i->vertex));
+    for(auto i = edges[vertex].begin(); i != edges[vertex].end(); ++i)
+      if(!visited.count(i->second) && distance + i->first < dist[i->second]) {
+        dist[i->second] = distance + i->first;
+        dijkstraQueue.push(edge(distance + i->first, i->second));
+        visited.insert(i->second);
+
+        // Keep track of the shortest path
+        if(pathVector)
+          parent[i->second] = vertex;
       }
   }
-}
-
-// Dijkstra's with path recording
-template <typename dataType, typename weightType>
-weightType adjacency_list<dataType, weightType>::
-dijkstra(const dataType& vertexA, const dataType& vertexB,
-         vector<dataType>& pathVector) {
 }

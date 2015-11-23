@@ -34,26 +34,17 @@ class adjacency_list {
                           const weightType& weight);
 
   // SSSP
-  weightType dijkstra(const dataType& vertexA, const dataType& vertexB);
   weightType dijkstra(const dataType& vertexA, const dataType& vertexB,
-                      vector<dataType>& pathVector);
+                      vector<dataType>* pathVector = NULL);
+
  private:
-  // Edge struct to store links and weights
-  struct edge {
-    edge(dataType _vertex, weightType _weight)
-      : vertex(_vertex), weight(_weight) {}
-    dataType vertex;
-    weightType weight;
-  };
+  // Edge type to store links and weights
+  typedef pair<weightType, dataType> edge;
 
   // 2D vector to store adjacent vertices
-  vector<vector<edge> > vertices;
-
-  // Map from dataType to vector indices
-  map<dataType, int> indexMap;
+  map<dataType, vector<edge> > edges;
 
   // Other members
-  int capacity;
   int size;
   bool weighted;
   bool negativeWeights;
