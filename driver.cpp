@@ -1,24 +1,33 @@
 #include <iostream>
+#include <set>
 #include "adjacency_list.h"
 using namespace std;
 
 int main() {
-  adjacency_list<int> graph;
+  adjacency_list<int> ospfNetwork;
 
-  graph.insertEdge(0, 1);
-  graph.insertEdge(1, 2);
-  graph.insertEdge(2, 3);
-  graph.insertEdge(3, 4);
-  graph.insertEdge(4, 5);
+  set<int> vertices;
+
+  int f, t;
+  while(cin >> f >> t) {
+    ospfNetwork.insertEdge(f, t);
+    vertices.insert(f);
+    vertices.insert(t);
+  }
+
+  ospfNetwork.dijkstra(0);
 
   vector<int> path;
-  int dist = graph.dijkstra(0, 5, &path);
 
-  cout << dist << endl;
+  for(auto v = vertices.begin(); v != vertices.end(); ++v) {
+    int dist = ospfNetwork.findPath(*v, &path);
 
-  for(auto i = path.begin(); i != path.end(); ++i)
-    cout << *i << " ";
-  cout << endl;
+    cout << dist << endl;
+
+    for(auto i = path.begin(); i != path.end(); ++i)
+      cout << *i << " ";
+    cout << endl << endl;
+  }
 
   return 0;
 }

@@ -92,44 +92,30 @@ insertDirectedEdge(const dataType& vertexA, const dataType& vertexB,
 
 // Dijkstra's SSSP algorithm
 template <typename dataType, typename weightType>
-weightType adjacency_list<dataType, weightType>::
-dijkstra(const dataType& vertexA, const dataType& vertexB,
-         vector<dataType>* pathVector) {
+void adjacency_list<dataType, weightType>::
+dijkstra(const dataType& source) {
+  // Set the source
+  this->source = source;
+
   // Initialize helper data structures
   priority_queue<edge, vector<edge>, greater<edge> > dijkstraQueue;
 
-  map<dataType, weightType> dist;
+  dist.clear();
   for(auto i = edges.begin(); i != edges.end(); ++i)
     dist[i->first] = INT_MAX;
 
   set<dataType> visited;
-  map<dataType, dataType> parent;
+  parent.clear();
 
-  dijkstraQueue.push(edge(0, vertexA));
-  visited.insert(vertexA);
-  dist[vertexA] = 0;
+  dijkstraQueue.push(edge(0, source));
+  visited.insert(source);
+  dist[source] = 0;
 
   // Greedily relax all the edges in order of ascending distance
   while(!dijkstraQueue.empty()) {
     dataType vertex = dijkstraQueue.top().second;
     weightType distance = dijkstraQueue.top().first;
     dijkstraQueue.pop();
-
-    // Check if it's the target
-    if(vertex == vertexB) {
-      // Trace back the path
-      if(pathVector) {
-        pathVector->clear();
-        dataType currentVertex = vertex;
-        while(currentVertex != vertexA) {
-          pathVector->push_back(currentVertex);
-          currentVertex = parent[currentVertex];
-        }
-        reverse(pathVector->begin(), pathVector->end());
-      }
-
-      return distance;
-    }
 
     // Relax edges
     for(auto i = edges[vertex].begin(); i != edges[vertex].end(); ++i)
@@ -139,8 +125,31 @@ dijkstra(const dataType& vertexA, const dataType& vertexB,
         visited.insert(i->second);
 
         // Keep track of the shortest path
-        if(pathVector)
-          parent[i->second] = vertex;
+        parent[i->second] = vertex;
       }
   }
+}
+
+// Trace a path from the saved source to a destination
+template <typename dataType, typename weightType>
+weightType adjacency_list<dataType, weightType>::
+findPath(const dataType& dest, vector<dataType>* path) {
+  // We assume a source has already been chosen and dijkstra has been run
+  if(parent.empty()) return weightType(-1);
+
+  // Trace back the path
+  if(path) {
+    path->clear();
+    dataType currentVertex = dest;
+    path->push_back(currentVertex);
+    while(currentVertex != source) {
+      currentVertex = parent[currentVertex];
+      path->push_back(currentVertex);
+    }
+
+    // Path is reversed right now
+    reverse(path->begin(), path->end());
+  }
+
+  return dist[dest];
 }

@@ -34,8 +34,8 @@ class adjacency_list {
                           const weightType& weight);
 
   // SSSP
-  weightType dijkstra(const dataType& vertexA, const dataType& vertexB,
-                      vector<dataType>* pathVector = NULL);
+  void dijkstra(const dataType& source);
+  weightType findPath(const dataType& dest, vector<dataType>* path = NULL);
 
  private:
   // Edge type to store links and weights
@@ -44,7 +44,12 @@ class adjacency_list {
   // 2D vector to store adjacent vertices
   map<dataType, vector<edge> > edges;
 
+  // Distances and parents for dijkstra SSSP tree
+  map<dataType, weightType> dist;
+  map<dataType, dataType> parent;
+
   // Other members
+  dataType source; // SSSP source
   int size;
   bool weighted;
   bool negativeWeights;
