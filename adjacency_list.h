@@ -31,6 +31,11 @@ class adjacency_list {
   void insertDirectedEdge(const dataType& vertexA, const dataType& vertexB,
                           const weightType& weight = 1);
 
+  // Remove edges and vertices
+  void removeVertex(const dataType& vertex);
+  void removeEdge(const dataType& vertexA, const dataType& vertexB);
+  void removeDirectedEdge(const dataType& vertexA, const dataType& vertexB);
+
   // SSSP
   void dijkstra(const dataType& source);
   weightType findPath(const dataType& dest, vector<dataType>* path = NULL);

@@ -62,7 +62,7 @@ template <typename dataType, typename weightType>
 void adjacency_list<dataType, weightType>::
 insertDirectedEdge(const dataType& vertexA, const dataType& vertexB,
              const weightType& weight) {
-  // Insert the edges if they don't yet exist
+  // Insert the vertices if they don't yet exist
   if(!edges.count(vertexA)) insertVertex(vertexA);
   if(!edges.count(vertexB)) insertVertex(vertexB);
 
@@ -74,6 +74,56 @@ insertDirectedEdge(const dataType& vertexA, const dataType& vertexB,
   edges[vertexA].push_back(edge(weight, vertexB));
 }
 
+// Remove a vertex and all connected edges
+template <typename dataType, typename weightType>
+void adjacency_list<dataType, weightType>::
+removeVertex(const dataType& vertex) {
+  auto vertIt = edges.begin();
+  while(vertIt != edges.end() && vertIt->first != vertex)
+    ++vertIt;
+
+  if(vertIt != edges.end()) {
+    edges.erase(vertIt);
+  }
+
+  for(auto it = edges.begin(); it != edges.end(); ++it) {
+    auto findIt = it->second.begin();
+    while(findIt != it->second.end() && findIt->second != vertex)
+      ++findIt;
+
+    if(findIt != it->second.end()) {
+      removeEdge(it->first, vertex);
+    }
+  }
+}
+
+// Remove an undirected edge
+template <typename dataType, typename weightType>
+void adjacency_list<dataType, weightType>::
+removeEdge(const dataType& vertexA, const dataType& vertexB) {
+  removeDirectedEdge(vertexA, vertexB);
+  removeDirectedEdge(vertexB, vertexA);
+}
+
+// Remove a directed edge
+template <typename dataType, typename weightType>
+void adjacency_list<dataType, weightType>::
+removeDirectedEdge(const dataType& vertexA, const dataType& vertexB) {
+  if(!edges.count(vertexA)) return;
+
+  vector<edge>& outgoing = edges[vertexA];
+
+  auto vertexBIt = outgoing.begin();
+  while(vertexBIt != outgoing.end() && vertexBIt->second != vertexB)
+    ++vertexBIt;
+
+  if(vertexBIt != outgoing.end()) {
+    outgoing.erase(vertexBIt);
+  }
+
+  // Note: SSSP tree is invalidated
+}
+
 // Dijkstra's SSSP algorithm
 template <typename dataType, typename weightType>
 void adjacency_list<dataType, weightType>::
@@ -81,12 +131,15 @@ dijkstra(const dataType& source) {
   // Set the source
   this->source = source;
 
+
   // Initialize helper data structures
   priority_queue<edge, vector<edge>, greater<edge> > dijkstraQueue;
 
   dist.clear();
-  for(auto i = edges.begin(); i != edges.end(); ++i)
+  for(auto i = edges.begin(); i != edges.end(); ++i) {
     dist[i->first] = INT_MAX;
+  }
+
 
   set<dataType> visited;
   parent.clear();
@@ -101,8 +154,9 @@ dijkstra(const dataType& source) {
     weightType distance = dijkstraQueue.top().first;
     dijkstraQueue.pop();
 
+
     // Relax edges
-    for(auto i = edges[vertex].begin(); i != edges[vertex].end(); ++i)
+    for(auto i = edges[vertex].begin(); i != edges[vertex].end(); ++i) {
       if(!visited.count(i->second) && distance + i->first < dist[i->second]) {
         dist[i->second] = distance + i->first;
         dijkstraQueue.push(edge(distance + i->first, i->second));
@@ -111,6 +165,7 @@ dijkstra(const dataType& source) {
         // Keep track of the shortest path
         parent[i->second] = vertex;
       }
+    }
   }
 }
 
@@ -126,9 +181,13 @@ findPath(const dataType& dest, vector<dataType>* path) {
     path->clear();
     dataType currentVertex = dest;
     path->push_back(currentVertex);
+
+    int x = 0;
     while(currentVertex != source) {
       currentVertex = parent[currentVertex];
       path->push_back(currentVertex);
+      ++x;
+      if(x >= 100) return -1;
     }
 
     // Path is reversed right now

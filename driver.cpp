@@ -34,10 +34,18 @@ int main() {
     routers.insert(t);
   }
 
-  // Loop through k time intervals
-  // For each interval
-  //   Send packet, or
-  //   Change network
+  // Simulate the network over 1000 time intervals
+  // During each interval packets may be sent, or the network may be changed
+  // in some way (routers being added, routers or links being dropped, etc).
+  //for(int i = 0; i < 1000; ++i) {
+  //}
+
+  updatePaths(ospfNetwork, routers, pathsTable);
+  printPaths(ospfNetwork, routers, pathsTable);
+
+  // Remove a vertex and see what happens
+  ospfNetwork.removeVertex(*(routers.begin()));
+  routers.erase(routers.begin());
 
   updatePaths(ospfNetwork, routers, pathsTable);
   printPaths(ospfNetwork, routers, pathsTable);
@@ -48,6 +56,8 @@ int main() {
 void updatePaths(adjacency_list<router>& ospfNetwork,
                  const set<router>& routers,
                  map<router, map<router, pathWithDistType> >& pathsTable) {
+  pathsTable.clear();
+
   // Discover shortest path trees from every router
   for(auto source = routers.begin(); source != routers.end(); ++source) {
     ospfNetwork.dijkstra(*source);
