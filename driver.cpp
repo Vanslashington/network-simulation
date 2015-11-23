@@ -5,28 +5,33 @@ using namespace std;
 
 int main() {
   adjacency_list<int> ospfNetwork;
-
-  set<int> vertices;
+  set<int> routers;
 
   int f, t;
   while(cin >> f >> t) {
     ospfNetwork.insertEdge(f, t);
-    vertices.insert(f);
-    vertices.insert(t);
+    routers.insert(f);
+    routers.insert(t);
   }
 
-  ospfNetwork.dijkstra(0);
+  // Discover shortest path trees from every router
+  for(auto source = routers.begin(); source != routers.end(); ++source) {
+    ospfNetwork.dijkstra(*source);
+    vector<int> path;
 
-  vector<int> path;
+    // Traverse the shortest paths to every destination
+    cout << "============================" << endl;
+    cout << "Source: " << *source << endl;
+    for(auto destn = routers.begin(); destn != routers.end(); ++destn) {
+      cout << "Destination: " << *destn << endl;
+      int dist = ospfNetwork.findPath(*destn, &path);
 
-  for(auto v = vertices.begin(); v != vertices.end(); ++v) {
-    int dist = ospfNetwork.findPath(*v, &path);
-
-    cout << dist << endl;
-
-    for(auto i = path.begin(); i != path.end(); ++i)
-      cout << *i << " ";
-    cout << endl << endl;
+      cout << "Shortest path distance: " << dist << endl;
+      cout << "Shortest path:" << endl;
+      for(auto i = path.begin(); i != path.end(); ++i)
+        cout << *i << " ";
+      cout << endl << endl;
+    }
   }
 
   return 0;
